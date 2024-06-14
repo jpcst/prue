@@ -25,6 +25,19 @@ fn send_get_request(url: &str) -> ureq::SerdeValue {
     let data = get.into_json().unwrap(); // saves data (ip)
     data
 }
+// fn send_get_request(url: &str) -> Result<ureq::SerdeValue, Error> {
+//     let get = ureq::get(url).call();
+//     let data = get.into_json().unwrap(); // saves data (ip)
+//     match get {
+//         Ok(get) => {
+//             data
+//         },
+//         Err(err) => {
+            
+//         }
+//     }
+    
+// }
 
 // #[derive(Debug)]
 // enum InvalidData {}
@@ -53,11 +66,27 @@ fn send_get_request(url: &str) -> ureq::SerdeValue {
 // thread 'main' panicked at src/main.rs:25:32:
 // called `Result::unwrap()` on an `Err` value: Custom { kind: InvalidData, error: "Failed to read JSON: EOF while parsing a value at line 1 column 0" }
 // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-fn find_ip() -> String { // verificar numero do array - automatizar
+fn find_ip() -> String {
     let discovery_addr = "https://discovery.meethue.com/"; // adicionar too many requests - error handle
     let ip_addr = send_get_request(discovery_addr);
-    //println!("{:?}",ip_addr);
-    ip_addr[0]["internalipaddress"].to_string().replace("\"", "")
+    let ip_array = ip_addr.as_array().unwrap();
+    println!("{:?}", ip_array);
+    if ip_array.len() == 1 {
+        println!("\nSingle IP found");
+        ip_addr[0]["internalipaddress"].to_string().replace("\"", "")
+    }
+    else {
+        for i in 0..ip_array.len() {
+            println!("({}) - {:?}", i+1, ip_array[i]);
+        }
+        let mut stdin = io::stdin();
+        let mut stdout = io::stdout();
+        write!(stdout, "Multiple IPs found, choose one:\n").unwrap();
+        stdout.flush().unwrap();
+        let number = stdin.read(&mut [0u8]).unwrap() - 1; // ainda tenho q testar (ligar Bridge 2)
+        println!("Connecting to {:?}", ip_array[number]);
+        ip_addr[number]["internalipaddress"].to_string().replace("\"", "")
+    }
 }
 
 fn read_ip_file(path: String) -> io::Result<String> {
@@ -107,7 +136,7 @@ fn read_key_file(path: &String) -> io::Result<String> {
     // println!("sd");
     match fs::read_to_string(&path) {
         Ok(key_from_txt) => {
-            println!("\nKey Path  : {}", path);
+            println!("Key Path  : {}", path);
             println!("Key Output: {}", key_from_txt);
             Ok(key_from_txt)
         },
@@ -199,7 +228,7 @@ fn check_connection(ip: &String, key: &String, path: &String) -> Result<ureq::Se
         // println!("CONNECTION OK (GET return is {:?})", request);
         println!("IP CONNECTION OK.");
         let error_user = &request[0]["error"]["description"].to_string().replace("\"","");
-        println!("{:?}", request);
+        // println!("{:?}", request);
         if error_user == "unauthorized user" {
             println!("\nUnauthorized Key. Trying to generate a new one...");
             let name = "arue-tests1";
@@ -234,6 +263,7 @@ fn main() {
     // let username:Vec<&String> = vec![&ip, &key];
 
     println!("\n====* MAIN FN STARTS HERE *====\n");
+
     println!("ip {:?}", ip);
     println!("key {:?}", key);
     // println!("{:?}", username);
