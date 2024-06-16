@@ -11,6 +11,7 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 - [x] Handle multiples IPs for different Bridges at the same network (still need to test)
 
 Later:
+- [ ] Rewrite check() fn with correct ip and key types
 - [x] Old cold merged with error handling
 - [ ] Optimize old code
 - [ ] Update to Hue API v2
