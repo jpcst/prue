@@ -10,7 +10,7 @@ const IP_PATH: &str = "/Users/jpcst/Documents/rust/arue/src/ip.txt";
 const KEY_PATH: &str = "/Users/jpcst/Documents/rust/arue/src/key.txt";
 
 #[derive(Debug)]
-struct Double(pub f32, pub f32);
+struct Double(f32, f32);
 
 fn lights_list() -> Vec<u8> {
     let data = data(IP_PATH, KEY_PATH);
