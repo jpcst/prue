@@ -1,4 +1,4 @@
-14/06/24 TO-DO:
+16/06/24 TO-DO:
 
 Error handling:
 - [ ] Change output type of send_get_request() / find_ip() to Result<> to handle 'Error 429 Too Many Requests'
@@ -11,5 +11,6 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 - [x] Handle multiples IPs for different Bridges at the same network (still need to test)
 
 Later:
+- [x] Old cold merged with error handling
 - [ ] Optimize old code
 - [ ] Update to Hue API v2
