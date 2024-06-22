@@ -50,10 +50,10 @@ fn is_on(list: Vec<u8>) -> Vec<bool> { // returns a vector with light states (on
     state
 }
 
-fn brightness(list: Vec<u8>) -> Vec<u8> { // returns a vector with light states (on->true/off->false)
+fn brightness(list: Vec<u8>) -> Vec<f32> { // returns a vector with light states (on->true/off->false)
     let data = data(IP_PATH, KEY_PATH);
     let size = list.len(); // number of lights
-    let mut state: Vec<u8> = vec![]; // vector to store states
+    let mut state: Vec<f32> = vec![]; // vector to store states
 
     for i in 0..size {
         if list[i] == 1 {
@@ -434,7 +434,7 @@ fn main() {
         // clearscreen::clear().expect("failed to clear screen");
     });
 
-    terminal::Action::SetTerminalSize(50,50);
+    terminal::Action::SetTerminalSize(30,30);
     let desk: Vec<u8> = vec![0,0,0,1,0,0];
     let ceil: Vec<u8> = vec![1,0,1,0,1,1];
     let bed:  Vec<u8> = vec![0,1,0,0,0,0];
@@ -452,11 +452,14 @@ fn main() {
     // println!("{:?}", bri[0]/254.0*100.0);
     println!("|----- NAME -----|-- STATE --|-- BRI --|");
     println!("|                |           |         |");
+    // let i_list = [2,4,1,3,5,6]
+    let i_list: [usize; 6] = [1,3,0,2,4,5];
     for i in 0..lights.len() {
-        println!("|   {:<12} |   {:<5}   |   {:<03}   |", names[i].replace("\"", ""), is_on[i], bri[i]);
+        println!("|   {:<12} |   {:<5}   |   {:<3.0}   |", names[i_list[i]].replace("\"", ""), is_on[i_list[i]], (bri[i_list[i]]/254.0*100.0).round());
     }
+    // println!("");
     println!("|                |           |         |");
-    println!("|----------------|-----------|---------|\n");
+    println!("|--- {{ pRue }} ---|--- 1.1 ---|--- ? ---|\n");
     let mut ipt = String::new();
     io::stdin().read_line(&mut ipt).expect("Error reading input");
     let ipt_vec: Vec<&str> = ipt.split_whitespace().collect();
@@ -497,7 +500,6 @@ fn main() {
             }
         }
     }
-
     else if ipt_vec[0] == "br" {
         for i in 0..is_on.len() {
             if is_on.clone()[i] == true {
@@ -509,7 +511,6 @@ fn main() {
             change_color(bed, &Double(0.5019, 0.4152));
         }
     }
-
     else if ipt_vec[0] == "am" {
         for i in 0..is_on.len() {
             if is_on.clone()[i] == true {
@@ -518,31 +519,22 @@ fn main() {
             }
         }
     }
-
     else if ipt_vec[0] == "/" || ipt_vec[0] == "rgb" {
         let r: u8 = ipt_vec[1].parse().unwrap();
         let g: u8 = ipt_vec[2].parse().unwrap();
         let b: u8 = ipt_vec[3].parse().unwrap();
-        // println!("{} {} {}", r,g, b);
         let xy = rgb_to_xy(r, g, b);
-        // println!("{:?}", xy);
         change_color(bool_to_int(is_on.clone()), &xy);
-        // io::stdin().read_line(&mut ipt).expect("Error reading input");
     }
-
     else if ipt_vec[0] == "-" || ipt_vec[0] == "bri" {
         let bri: u32 = ipt_vec[1].parse().unwrap();
         let bri = bri * 255 / 100;
         change_bri(bri as u8, 0, bool_to_int(is_on));
     }
-
     else {
         clearscreen::clear().expect("failed to clear screen");
-        main();
     }
-    // clearscreen::clear().expect("failed to clear screen");
     main();
-
 }
 
 fn bool_to_int (x: Vec<bool>) -> Vec<u8> {
