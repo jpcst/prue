@@ -491,9 +491,6 @@ fn main() {
                 change_color(change, &Double(0.3, 0.3));
             }
         }
-        if is_on.clone()[1] == true {
-            change_color(bed, &Double(0.5019, 0.4152));
-        }
     }
     else if ipt_vec[0] == "am" {
         for i in 0..is_on.len() {
