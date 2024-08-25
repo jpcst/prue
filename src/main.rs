@@ -6,8 +6,8 @@ use serde_json::json;
 extern crate serde_json;
 extern crate ureq;
 
-const IP_PATH: &str = "C:/Users/hollics/Documents/phue-ip.txt";
-const KEY_PATH: &str = "C:/Users/hollics/Documents/phue-key.txt";
+const IP_PATH: &str = "/Users/berzrk/Documents/ip.txt";
+const KEY_PATH: &str = "/Users/berzrk/Documents/key.txt";
 
 #[derive(Debug)]
 struct Double(f32, f32);
