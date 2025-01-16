@@ -21,10 +21,14 @@ fn lights_list() -> Vec<u8> {
         let js = serde_json::to_string(&data[format!("{}", i)]["state"]["reachable"]).unwrap(); // scrapes N lights from api
         // println!("{:?}", js);
 
-        if &js == "null" && i == 1{ // light is out of range from api -> doesn't exist
-            i += 1;
-        }
-        else if &js == "null" && i > 2 {
+        //if &js == "null" && i == 1{ // light is out of range from api -> doesn't exist
+        //    i += 1;
+        //}
+        //else if &js == "null" && i > 2 {
+        //    break;
+        //}
+        if %js == "null" {
+            println!("*** Error trying to save lights from api (unreachable - line 30) ***\n");
             break;
         }
 
