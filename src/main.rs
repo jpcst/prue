@@ -459,7 +459,7 @@ fn main() {
     println!("|----- NAME -----|-- STATE --|-- BRI --|");
     println!("|                |           |         |");
     // let i_list = [2,4,1,3,5,6]
-    let i_list: [usize; 6] = [1,3,0,2,4,5];
+    let i_list: [usize; 3] = [1,2,3];
     for i in 0..lights.len() {
         println!("|   {:<12} |   {:<5}   |   {:<3.0}   |", names[i_list[i]].replace("\"", ""), is_on[i_list[i]], (bri[i_list[i]]/254.0*100.0).round());
     }
