@@ -482,9 +482,7 @@ fn main() {
     else if ipt_vec[0] == "c2" {
         do_light(255, 0, c2);
     }
-    else if ipt_vec[0] == "db" {
-        do_light(255, 0, db);
-    }
+        
     else if ipt_vec[0] == "info" || ipt_vec[0] == "?" {
         check();
         println!("pRue == Philips Hue (pHue) + Rust");
