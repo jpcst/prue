@@ -6,34 +6,40 @@ use serde_json::json;
 extern crate serde_json;
 extern crate ureq;
 
-const IP_PATH: &str = "/Users/berzrk/Documents/ip.txt";
-const KEY_PATH: &str = "/Users/berzrk/Documents/key.txt";
+const IP_PATH: &str = r"C:\github\prue-main\src\ip.txt";
+const KEY_PATH: &str = r"C:\github\prue-main\src\key.txt";
 
 #[derive(Debug)]
 struct Double(f32, f32);
 
 fn lights_list() -> Vec<u8> {
     let data = data(IP_PATH, KEY_PATH);
-    let mut lights: Vec<u8> = vec![]; // vector that will contain lights
+    let mut lights: Vec<u8> = vec![]; // Vector to store reachable lights
     let mut i: u8 = 1;
+    let mut null_count = 0; // Counter for consecutive `null` values
 
     loop {
-        let js = serde_json::to_string(&data[format!("{}", i)]["state"]["reachable"]).unwrap(); // scrapes N lights from api
-        // println!("{:?}", js);
+        let key = format!("{}", i);
+        let reachable = data[key]["state"]["reachable"].clone();
 
-        //if &js == "null" && i == 1{ // light is out of range from api -> doesn't exist
-        //    i += 1;
-        //}
-        //else if &js == "null" && i > 2 {
-        //    break;
-        //}
-        if %js == "null" {
-            println!("*** Error trying to save lights from api (unreachable - line 30) ***\n");
-            break;
+        if reachable.is_null() {
+            // Increment null counter for out-of-range light
+            null_count += 1;
+
+            if null_count > 5 {
+                // If we encounter more than n consecutive `null` values, assume the list has ended
+                break;
+            }
+        } else {
+            // Reset null counter if a valid light is found
+            null_count = 0;
+
+            if reachable == serde_json::Value::Bool(true) {
+                // Add reachable light to the list
+                lights.push(i);
+            }
         }
-
-        lights.push(i); // appends light to vector
-        i += 1;
+        i += 1; // Always increment to check the next light
     }
     lights
 }
@@ -292,7 +298,7 @@ fn find_ip() -> String {
     let ip_array = ip_addr.as_array().unwrap();
     println!("{:?}", ip_array);
     if ip_array.len() == 1 {
-        print!("\nFound Single IP");
+        print!("\nSingle IP ");
         ip_addr[0]["internalipaddress"].to_string().replace("\"", "")
     }
     else {
@@ -438,18 +444,17 @@ fn main() {
         // clearscreen::clear().expect("failed to clear screen");
     });
 
+    terminal::Action::SetTerminalSize(30,30);
     let ceil:  Vec<u8> = vec![1,1,0];
     let c1  :  Vec<u8> = vec![1,0,0];
     let c2  :  Vec<u8> = vec![0,1,0];
     let desk:  Vec<u8> = vec![0,0,1];
     let all :  Vec<u8> = vec![1,1,1];
 
-    terminal::Action::SetTerminalSize(30,30);
     let lights = lights_list();
     let names = names(lights.clone());
     let is_on = is_on(lights.clone());
     let bri = brightness(all.clone());
-
     // println!("{:?}", bri[0]/254.0*100.0);
     println!("|----- NAME -----|-- STATE --|-- BRI --|");
     println!("|                |           |         |");
@@ -460,12 +465,11 @@ fn main() {
     }
     // println!("");
     println!("|                |           |         |");
-    println!("|-----{{pRue}}-----|--{{v1.0b}}--|---{{?}}---|\n");
+    println!("|----{{ pRue }}----|--{{ 1.2 }}--|--{{ ? }}--|\n");
     let mut ipt = String::new();
     io::stdin().read_line(&mut ipt).expect("Error reading input");
     let ipt_vec: Vec<&str> = ipt.split_whitespace().collect();
 
-    // toggle luz
     if ipt_vec[0] == "d" {
         do_light(255, 0, desk);
     }
@@ -478,6 +482,15 @@ fn main() {
     else if ipt_vec[0] == "c2" {
         do_light(255, 0, c2);
     }
+    else if ipt_vec[0] == "db" {
+        do_light(255, 0, db);
+    }
+    else if ipt_vec[0] == "info" || ipt_vec[0] == "?" {
+        check();
+        println!("pRue == Philips Hue (pHue) + Rust");
+        println!("Made by the best programmer in the world\n");
+        pause();
+    }
     else if ipt_vec[0] == "all" {
         for i in 0..is_on.len() {
             if is_on.clone()[i] == true {
@@ -486,14 +499,15 @@ fn main() {
             }
         }
     }
-    
-    // troca de cores
     else if ipt_vec[0] == "br" {
         for i in 0..is_on.len() {
             if is_on.clone()[i] == true {
                 let change: Vec<u8> = bool_to_int(is_on.clone());
                 change_color(change, &Double(0.3, 0.3));
             }
+        }
+        if is_on.clone()[1] == true {
+            change_color(bed, &Double(0.5019, 0.4152));
         }
     }
     else if ipt_vec[0] == "am" {
@@ -522,7 +536,7 @@ fn main() {
     main();
 }
 
-fn bool_to_int (x: Vec<bool>) -> Vec<u8> { // trocar para .into() muito mais facil
+fn bool_to_int (x: Vec<bool>) -> Vec<u8> {
     let mut y: Vec<u8> = Vec::new();
     for i in 0..x.len() {
         if x[i] == true {
